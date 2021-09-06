@@ -6,17 +6,21 @@
 <div class="container mx-auto px-4 flex justify-between items-center">
     <div class="flex justify-between items-center">
         <h1 class="font-sans text-4xl mx-2 my-4">{{ $article->title }}</h1>
-        @isset($userLike)
-        @if($userLike->doLike === 1)
-        <a href="{{ route('articles.like', $article) }}">
-            <x-fas-heart class="w-8 h-8 fill-current text-pink-500" />
-        </a>
+        @if(isset($userLike))
+            @if($userLike->doLike === 1)
+            <a href="{{ route('articles.like', $article) }}">
+                <x-fas-heart class="w-8 h-8 fill-current text-pink-500" />
+            </a>
+            @else
+            <a href="{{ route('articles.like', $article) }}">
+                <x-far-heart class="w-8 h-8 fill-current text-pink-500" />
+            </a>
+            @endif
         @else
         <a href="{{ route('articles.like', $article) }}">
             <x-far-heart class="w-8 h-8 fill-current text-pink-500" />
         </a>
         @endif
-        @endisset
     </div>
 </div>
 <div class="px-4 mx-2 font-sans text-lg py-2">
