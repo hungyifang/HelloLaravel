@@ -29,7 +29,11 @@ class ArticlesController extends Controller
             })->count();
             \App\Models\Article::find($value->id)->update(['likes' => $likes]);
         });
-        $articles = \App\Models\Article::where('state', 'published')->orderBy('created_at', 'desc')->paginate(10);
+        $articles = \App\Models\Article::with('user')->where('state', 'published')->orderBy('created_at', 'desc')->paginate(10);
+        if (auth()->check()) {
+            $userID = auth()->id();
+            return view('articles.index', ['articles' => $articles, 'userID' => $userID]);
+        }
         return view('articles.index', ['articles' => $articles]);
 
     }
@@ -46,7 +50,11 @@ class ArticlesController extends Controller
             })->count();
             \App\Models\Article::find($value->id)->update(['likes' => $likes]);
         });
-        $articles = \App\Models\Article::where('state', 'published')->orderBy('viewed', 'desc')->paginate(10);
+        $articles = \App\Models\Article::with('user')->where('state', 'published')->orderBy('viewed', 'desc')->paginate(10);
+        if (auth()->check()) {
+            $userID = auth()->id();
+            return view('articles.hot', ['articles' => $articles, 'userID' => $userID]);
+        }
         return view('articles.hot', ['articles' => $articles]);
     }
 
@@ -62,8 +70,8 @@ class ArticlesController extends Controller
             })->count();
             \App\Models\Article::find($value->id)->update(['likes' => $likes]);
         });
-        $articles = \App\Models\Article::where('state', 'draft')->where('user_id', $userID)->paginate(10);
-        return view('articles.draft', ['articles' => $articles]);
+        $articles = \App\Models\Article::with('user')->where('state', 'draft')->where('user_id', $userID)->paginate(10);
+        return view('articles.draft', ['articles' => $articles, 'userID' => $userID]);
     }
     /**
      * Show the form for creating a new resource.
@@ -108,7 +116,7 @@ class ArticlesController extends Controller
     {
         $article = \App\Models\Article::find($id);
         //處理瀏覽數
-        $newViewed = (\App\Models\Article::find($id)->viewed) + 1;
+        $newViewed = ($article->viewed) + 1;
         $article->update(['viewed' => $newViewed]);
         //有登入回傳ID, 給我的最愛用
         if (auth()->check()) {
@@ -126,14 +134,14 @@ class ArticlesController extends Controller
 
     public function like($id)
     {
-        $article = \App\Models\Article::find($id);
+        $article = \App\Models\Article::with('user')->find($id);
         $userID = auth()->id();
         $userLike = \App\Models\User_like::select('doLike', 'id')
             ->where('article_id', $id)
             ->where('user_id', $userID)
             ->first(); //用get會得到collection不是單一資料, 會造成無法得到欄位資料,找不到$userLike->doLike
         if (is_null($userLike)) {
-            $newLike = ['article_id' => $id, 'user_id' => $userID, 'doLike' => false];
+            $newLike = ['article_id' => $id, 'user_id' => $userID, 'doLike' => true];
             \App\Models\User_like::create($newLike);
         } else {
             $doLike = !($userLike->doLike);
@@ -150,7 +158,7 @@ class ArticlesController extends Controller
      */
     public function edit($id)
     {
-        $article = \App\Models\Article::find($id);
+        $article = \App\Models\Article::with('user')->find($id);
         return view('articles.edit', ['article' => $article]);
     }
 
@@ -163,12 +171,12 @@ class ArticlesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $article = \App\Models\Article::find($id);
+        $article = \App\Models\Article::with('user')->find($id);
         $request = $request->validate(
             ['title' => 'required', 'content' => 'required|min:10']
         );
         $article->update($request);
-        $article->update(['state'=>'published']);
+        $article->update(['state' => 'published']);
         session()->flash('notice', '文章更新成功!');
         return redirect()->route('articles.show', $article);
     }
@@ -181,6 +189,9 @@ class ArticlesController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $article = \App\Models\Article::with('user')->find($id);
+        $article->delete();
+        session()->flash('notice', '文章刪除成功!');
+        return redirect()->route('root');
     }
 }

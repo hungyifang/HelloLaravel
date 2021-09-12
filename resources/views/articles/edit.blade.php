@@ -32,11 +32,14 @@
         <label for="" class="p-2 my-2">內文 :</label><br />
         <textarea name="content" id="" cols="30" rows="10" class="border border-gray-500 m-2 font-sans" required minlength="10">{{ $article->content }}</textarea>
     </div>
-    <div>
+    <div class="flex items-center space-x-2">
         @if($article->state==="draft")
         <button type="submit" class="m-2 p-2 rounded border-none bg-blue-500 hover:bg-blue-700 text-gray-50 font-bold text-base" id="btn-draft">儲存並發布</button>
+        <a href="{{ url()->previous() }}" class="p-2 rounded bg-blue-500 hover:bg-blue-700 text-gray-50 font-bold no-underline text-base ">回上一頁</a>
         @else
-        <button type="submit" class="m-2 p-2 rounded border-none bg-blue-500 hover:bg-blue-700 text-gray-50 font-bold text-base" id="btn-draft">儲存</button>
+            <button type="submit" class="m-2 p-2 rounded border-none bg-blue-500 hover:bg-blue-700 text-gray-50 font-bold text-base" id="btn-draft">儲存</button>
+            <a href="{{ url()->previous() }}" class="p-2 rounded bg-blue-500 hover:bg-blue-700 text-gray-50 font-bold no-underline text-base ">回上一頁</a>
+        </div>
         @endif
     </div>
 </form>

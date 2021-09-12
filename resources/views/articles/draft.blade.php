@@ -17,25 +17,45 @@
     </div>
     <div class="border-t-4 border-b-4 py-2 border-indigo-500">
         @foreach($articles as $index => $article)
-        <div class="flex mx-auto items-center space-x-10 px-4 odd:bg-blue-100 even:bg-gray-50 rounded">
+        <div class="flex mx-auto items-center space-x-10 px-4 odd:bg-blue-100 even:bg-gray-50 rounded justify-between">
             {{-- <div class="text-2xl font-bold px-3 py-1 rounded">{{ $index+1 }}</div> --}}
-        <div class="font-sans text-base py-3 text-center mx-3">
-            <div>{{ $article->likes }}</div>
-            <div class="font-thin">like</div>
-        </div>
-        <div class="font-sans text-base py-3 text-center mx-3">
-            <div>{{ $article->viewed }}</div>
-            <div class="font-thin">viewed</div>
-        </div>
-        <div class="py-3 mx-3">
-            <a href="{{ route('articles.show', $article) }}">
-                <div class="font-sans text-xl font-bold my-1 cursor-pointer">{{ $article->title }}</div>
-            </a>
-            <div class="font-sans text-xs font-thin my-1">{{ $article->created_at }} by
-                <span class="text-blue-500 font-semibold">{{ $article->user->name }}</span>
+        <div class="flex items-center space-x-10">
+            <div class="font-sans text-base py-3 text-center mx-3">
+                <div>{{ $article->likes }}</div>
+                <div class="font-thin">like</div>
+            </div>
+            <div class="font-sans text-base py-3 text-center mx-3">
+                <div>{{ $article->viewed }}</div>
+                <div class="font-thin">viewed</div>
+            </div>
+            <div class="py-3 mx-3">
+                <a href="{{ route('articles.show', $article) }}">
+                    <div class="font-sans text-xl font-bold my-1 cursor-pointer">{{ $article->title }}</div>
+                </a>
+                <div class="font-sans text-xs font-thin my-1">{{ $article->created_at }} by
+                    <span class="text-blue-500 font-semibold">{{ $article->user->name }}</span>
+                </div>
             </div>
         </div>
-    </div>
+        <div class="flex items-center space-x-3">
+            @if(isset($userID))
+            @if($userID === $article->user_id)
+            <a href="{{ route('articles.edit', $article) }}" class="m-2 px-3 py-2 rounded bg-blue-500 hover:bg-blue-700 text-gray-50 font-bold no-underline text-base flex-none">編輯</a>
+            <form action="{{ route('articles.destroy', $article) }}" method="post" class="m-2 ">
+                @csrf
+                @method('delete')
+                <button type="submit" class="px-3 py-2 rounded bg-red-500 hover:bg-red-700 text-gray-50 font-bold no-underline text-base flex-none">刪除</button>
+            </form>
+            @else
+            <span href="{{ route('articles.edit', $article) }}" class="m-2 px-3 py-2 rounded bg-gray-400 text-gray-50 font-bold no-underline text-base flex-none">編輯</span>
+            <span href="{{ route('articles.destroy', $article) }}" class="m-2 px-3 py-2 rounded bg-gray-400 text-gray-50 font-bold no-underline text-base flex-none">刪除</span>
+            @endif
+            @else
+            <span href="{{ route('articles.edit', $article) }}" class="m-2 px-3 py-2 rounded bg-gray-400 text-gray-50 font-bold no-underline text-base flex-none">編輯</span>
+            <span href="{{ route('articles.destroy', $article) }}" class="m-2 px-3 py-2 rounded bg-gray-400 text-gray-50 font-bold no-underline text-base flex-none">刪除</span>
+            @endif
+        </div>
+        </div>
     @endforeach
 </div>
 <div class="py-2 px-2 my-3">{{ $articles->links() }}</div>
